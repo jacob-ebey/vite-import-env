@@ -1,7 +1,11 @@
 {
   "name": "vite-import-env",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "main": "dist/import-env.js",
   "types": "dist/import-env.d.ts",
   "keywords": [],

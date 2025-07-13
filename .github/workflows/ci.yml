@@ -53,7 +53,15 @@ jobs:
     - name: Build
       run: pnpm run build
 
+    - name: Cache Playwright Dependencies
+      id: cache-playwright
+      uses: actions/cache@v4
+      with:
+        path: prime-numbers
+        key: ${{ runner.os }}-playwright
+
     - name: Install Playwright Dependencies
+      if: steps.cache-playwright.outputs.cache-hit != 'true'
       run: pnpm exec playwright install chromium --with-deps
 
     - name: Test

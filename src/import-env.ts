@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import * as path from "node:path";
+
 import * as esrap from "esrap";
 import ts from "esrap/languages/ts";
 import tsx from "esrap/languages/tsx";
@@ -26,8 +29,36 @@ function isJSXFile(id: string): boolean {
   return idWithoutQuery.endsWith(".jsx") || idWithoutQuery.endsWith(".tsx");
 }
 
+function mergeRollupInputs(
+  inputs: vite.Rollup.InputOption,
+  ensureEntries: Map<string, string>
+) {
+  // Normalize inputs to an object
+  let normalizedInputs: Record<string, string> =
+    Object.fromEntries(ensureEntries);
+
+  if (typeof inputs === "string") {
+    normalizedInputs = { [path.basename(inputs)]: inputs };
+  } else if (Array.isArray(inputs)) {
+    normalizedInputs = Object.assign(
+      normalizedInputs,
+      Object.fromEntries(inputs.map((input) => [path.basename(input), input]))
+    );
+  } else {
+    normalizedInputs = Object.assign(normalizedInputs, inputs);
+  }
+
+  return normalizedInputs;
+}
+
+export type ImportEnvAPI = {
+  mergeEntries: (env: vite.BuildEnvironment) => void;
+};
+
 export function importEnv(): vite.PluginOption[] {
   let resolvedConfig: vite.ResolvedConfig | undefined;
+  const environmentEntries: Record<string, Map<string, string>> = {};
+  const entryAssets: Record<string, string> = {};
 
   function getResolver(env: string) {
     if (!resolvedConfig) {
@@ -54,6 +85,8 @@ export function importEnv(): vite.PluginOption[] {
         importer
       );
   }
+
+  let updateEntries = () => {};
 
   return [
     {
@@ -114,6 +147,47 @@ export function importEnv(): vite.PluginOption[] {
       },
     },
     {
+      name: "import-env-builder",
+      enforce: "post",
+      config(userConfig) {
+        return vite.mergeConfig<vite.UserConfig, vite.UserConfig>(userConfig, {
+          builder: {
+            sharedConfigBuild: true,
+            sharedPlugins: true,
+            async buildApp(builder) {
+              updateEntries = () => {
+                for (const env of Object.values(builder.environments)) {
+                  env.config.build.rollupOptions.input = mergeRollupInputs(
+                    originalValues[env.name].input ?? {},
+                    environmentEntries[env.name] ?? new Map()
+                  );
+                }
+              };
+
+              const originalValues: Record<
+                string,
+                {
+                  input: vite.Rollup.InputOption | undefined;
+                  // manifest: string | boolean;
+                  // write: boolean;
+                }
+              > = {};
+              for (const env of Object.values(builder.environments)) {
+                originalValues[env.name] ??= {
+                  input: env.config.build.rollupOptions.input,
+                };
+              }
+              await userConfig.builder?.buildApp?.(builder);
+
+              updateEntries();
+
+              await userConfig.builder?.buildApp?.(builder);
+            },
+          },
+        });
+      },
+    },
+    {
       name: "import-env",
       enforce: "pre",
       configResolved(config) {
@@ -125,17 +199,29 @@ export function importEnv(): vite.PluginOption[] {
         const env = query.get("env");
 
         if (env) {
-          const queryWithoutEnv = new URLSearchParams(query);
-          queryWithoutEnv.delete("env");
           const resolver = getResolver(env);
           const resolved = await resolver(ogSource, importer);
+
           if (resolved) {
-            const [resolvedId, ...resolvedQueryRest] = resolved.split("?");
-            const resolvedQuery = new URLSearchParams(
-              resolvedQueryRest.join("?")
-            );
-            resolvedQuery.set("env", env);
-            return `${resolvedId}?${resolvedQuery.toString()}`;
+            if (this.environment.mode === "build") {
+              environmentEntries[env] ??= new Map<string, string>();
+
+              const id = `__IMPORT_ENV__${createHash("sha256").update(resolved).digest("hex")}`;
+
+              environmentEntries[env].set(id, resolved);
+
+              return {
+                id,
+                external: true,
+              };
+            } else {
+              const [resolvedId, ...resolvedQueryRest] = resolved.split("?");
+              const resolvedQuery = new URLSearchParams(
+                resolvedQueryRest.join("?")
+              );
+              resolvedQuery.set("env", env);
+              return `${resolvedId}?${resolvedQuery.toString()}`;
+            }
           }
         }
       },
@@ -169,6 +255,47 @@ export function importEnv(): vite.PluginOption[] {
 
           return esrap.print(ast.program, isJSXFile(id) ? tsx() : ts());
         }
+      },
+      renderChunk(code) {
+        const matches = Array.from(
+          code.matchAll(/['"]__IMPORT_ENV__[\w\d]+['"]/g)
+        ).reverse();
+
+        for (const match of matches) {
+          // Replace the import with public_path/<id>.js
+          const id = match[0].slice(1, -1);
+
+          const replacement = entryAssets[id];
+          code =
+            code.slice(0, match.index + 1) +
+            replacement +
+            code.slice(match.index + match[0].length - 1);
+        }
+
+        return code;
+      },
+      writeBundle(_, bundle) {
+        updateEntries();
+        // if (!isWrite) {
+        if (this.environment.config.build.manifest) {
+          const asset =
+            bundle[
+              typeof this.environment.config.build.manifest === "string"
+                ? this.environment.config.build.manifest
+                : ".vite/manifest.json"
+            ];
+          if (asset?.type === "asset" && typeof asset.source === "string") {
+            const manifest = JSON.parse(asset.source) as vite.Manifest;
+            console.log({ env: this.environment.name, manifest });
+            for (const chunk of Object.values(manifest)) {
+              if (chunk.isEntry && chunk.name?.startsWith("__IMPORT_ENV__")) {
+                entryAssets[chunk.name] =
+                  this.environment.config.base + chunk.file;
+              }
+            }
+          }
+        }
+        // }
       },
     },
     {

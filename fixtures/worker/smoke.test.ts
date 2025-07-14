@@ -19,7 +19,6 @@ test("basic smoke test", async () => {
   expect(result).toEqual({
     clientOnlyValue: "client-only-value",
     server: {
-      clientOnlyValue: "client-only-value",
       serverOnlyValue: "server-only-value",
       sharedValue: "shared-value",
       value: "server-value",

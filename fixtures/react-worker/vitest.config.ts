@@ -9,7 +9,7 @@ export default defineConfig({
       enabled: true,
       headless: true,
       provider: "playwright",
-      instances: [{ browser: "chromium" }],
+      instances: [{ name: "react_worker", browser: "chromium" }],
     },
   },
 });

@@ -4,13 +4,20 @@ import tsx from "esrap/languages/tsx";
 import * as oxc from "oxc-parser";
 import * as vite from "vite";
 
+function alwaysSkip(id: string): boolean {
+  return id.startsWith("\0vite");
+}
+
 function isValidScriptFile(id: string): boolean {
   const [idWithoutQuery] = id.split("?");
   return (
-    idWithoutQuery.endsWith(".ts") ||
-    idWithoutQuery.endsWith(".tsx") ||
-    idWithoutQuery.endsWith(".js") ||
-    idWithoutQuery.endsWith(".jsx")
+    !alwaysSkip(id) &&
+    (idWithoutQuery.endsWith(".mts") ||
+      idWithoutQuery.endsWith(".ts") ||
+      idWithoutQuery.endsWith(".tsx") ||
+      idWithoutQuery.endsWith(".mjs") ||
+      idWithoutQuery.endsWith(".js") ||
+      idWithoutQuery.endsWith(".jsx"))
   );
 }
 
@@ -50,16 +57,21 @@ export function importEnv(): vite.PluginOption[] {
 
   return [
     {
-      name: "with-to-query",
+      name: "import-attributes-to-query",
       enforce: "pre",
       transform(code, id) {
         if (!isValidScriptFile(id)) {
+          console.info(
+            `[import-attributes-to-query] Skipping transformation of: ${id}`
+          );
           return;
         }
 
-        const ast = oxc.parseSync(id, code, {
+        const [idWithoutQuery] = id.split("?");
+        const ast = oxc.parseSync(idWithoutQuery, code, {
           astType: "ts",
           preserveParens: true,
+          lang: isJSXFile(id) ? "tsx" : "ts",
         });
 
         for (const node of ast.program.body) {
@@ -97,6 +109,7 @@ export function importEnv(): vite.PluginOption[] {
           ast.program,
           isJSXFile(id) ? tsx() : ts()
         );
+
         return generated;
       },
     },
@@ -106,13 +119,14 @@ export function importEnv(): vite.PluginOption[] {
       configResolved(config) {
         resolvedConfig = config;
       },
-      async resolveId(source, importer, { isEntry }) {
-        if (isEntry || !importer) return;
-
+      async resolveId(source, importer) {
         const [ogSource, ...ogQueryRest] = source.split("?");
         const query = new URLSearchParams(ogQueryRest.join("?"));
         const env = query.get("env");
+
         if (env) {
+          const queryWithoutEnv = new URLSearchParams(query);
+          queryWithoutEnv.delete("env");
           const resolver = getResolver(env);
           const resolved = await resolver(ogSource, importer);
           if (resolved) {
@@ -127,6 +141,7 @@ export function importEnv(): vite.PluginOption[] {
       },
       transform(code, id) {
         if (!isValidScriptFile(id)) {
+          console.info(`[import-env] Skipping transformation of: ${id}`);
           return;
         }
 
@@ -134,7 +149,8 @@ export function importEnv(): vite.PluginOption[] {
         const query = new URLSearchParams(ogQueryRest.join("?"));
         const env = query.get("env");
         if (env) {
-          const ast = oxc.parseSync(id, code, {
+          const [idWithoutQuery] = id.split("?");
+          const ast = oxc.parseSync(idWithoutQuery, code, {
             astType: "ts",
             preserveParens: true,
           });

@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import { importEnv } from "vite-import-env";
 
+const importEnvPlugin = importEnv();
+
 export default defineConfig({
   builder: {
     async buildApp(builder) {
@@ -39,5 +41,9 @@ export default defineConfig({
       },
     },
   },
-  plugins: [importEnv()],
+  worker: {
+    format: "es",
+    plugins: () => [importEnvPlugin],
+  },
+  plugins: [importEnvPlugin],
 });

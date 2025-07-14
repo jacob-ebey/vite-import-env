@@ -8,5 +8,9 @@ export async function fetchServer(request: Request) {
     // @ts-expect-error - no types for this package
     "react-server-dom-webpack/server.browser"
   );
-  return new Response(renderToReadableStream(<h1>Hello from the server!</h1>));
+  return new Response(
+    renderToReadableStream(
+      <h1 data-testid="server-title">Hello from the server!</h1>
+    )
+  );
 }

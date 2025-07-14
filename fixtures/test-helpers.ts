@@ -24,6 +24,13 @@ export async function setupTest(
   const promise = (references[mode].promise = (async () => {
     const port = await getPort();
 
+    if (mode === "prod") {
+      await $({
+        cwd,
+        // stdout: process.stdout,
+      })`pnpm build`;
+    }
+
     const command =
       mode === "dev"
         ? $({

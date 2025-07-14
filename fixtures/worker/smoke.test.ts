@@ -7,24 +7,24 @@ test("basic smoke test dev", async ({ page: _page }) => {
 
   await page.goto("/");
 
-  await expect(page.locator("#result")).toContainText(
-    JSON.stringify(
-      {
-        clientOnlyValue: "client-only-value",
-        server: {
-          serverOnlyValue: "server-only-value",
+  await expect(
+    page.locator("#result", {
+      hasText: JSON.stringify(
+        {
+          clientOnlyValue: "client-only-value",
+          server: {
+            serverOnlyValue: "server-only-value",
+            sharedValue: "shared-value",
+            value: "server-value",
+          },
           sharedValue: "shared-value",
-          value: "server-value",
+          value: "client-value",
         },
-        sharedValue: "shared-value",
-        value: "client-value",
-      },
-      null,
-      2
-    )
-  );
-
-  expect(true).toBe(true);
+        null,
+        2
+      ),
+    })
+  ).toBeAttached();
 });
 
 test("basic smoke test prod", async ({ page: _page }) => {
@@ -32,22 +32,22 @@ test("basic smoke test prod", async ({ page: _page }) => {
 
   await page.goto("/");
 
-  await expect(page.locator("#result")).toContainText(
-    JSON.stringify(
-      {
-        clientOnlyValue: "client-only-value",
-        server: {
-          serverOnlyValue: "server-only-value",
+  await expect(
+    page.locator("#result", {
+      hasText: JSON.stringify(
+        {
+          clientOnlyValue: "client-only-value",
+          server: {
+            serverOnlyValue: "server-only-value",
+            sharedValue: "shared-value",
+            value: "server-value",
+          },
           sharedValue: "shared-value",
-          value: "server-value",
+          value: "client-value",
         },
-        sharedValue: "shared-value",
-        value: "client-value",
-      },
-      null,
-      2
-    )
-  );
-
-  expect(true).toBe(true);
+        null,
+        2
+      ),
+    })
+  ).toBeAttached();
 });

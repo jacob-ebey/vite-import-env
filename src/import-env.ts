@@ -59,6 +59,7 @@ export function importEnv(): vite.PluginOption[] {
   let resolvedConfig: vite.ResolvedConfig | undefined;
   const environmentEntries: Record<string, Map<string, string>> = {};
   const entryAssets: Record<string, string> = {};
+  const missingAssets: Set<string> = new Set();
 
   function getResolver(env: string) {
     if (!resolvedConfig) {
@@ -94,9 +95,9 @@ export function importEnv(): vite.PluginOption[] {
       enforce: "pre",
       transform(code, id) {
         if (!isValidScriptFile(id)) {
-          console.info(
-            `[import-attributes-to-query] Skipping transformation of: ${id}`
-          );
+          // console.info(
+          //   `[import-attributes-to-query] Skipping transformation of: ${id}`
+          // );
           return;
         }
 
@@ -182,6 +183,40 @@ export function importEnv(): vite.PluginOption[] {
               updateEntries();
 
               await userConfig.builder?.buildApp?.(builder);
+
+              if (missingAssets.size > 0) {
+                const envs = new Set<string>();
+                const findEnvironmentAndSource = (id: string) => {
+                  for (const [envName, entries] of Object.entries(
+                    environmentEntries
+                  )) {
+                    for (const [entryId, source] of entries.entries()) {
+                      if (id === entryId) {
+                        envs.add(envName);
+                        return { envName, source };
+                      }
+                    }
+                  }
+                  return null;
+                };
+
+                for (const id of missingAssets) {
+                  const found = findEnvironmentAndSource(id);
+                  if (found) {
+                    console.error(
+                      `[import-env] Missing asset for environment '${found.envName}': ${found.source}`
+                    );
+                  } else {
+                    console.error(
+                      `[import-env] Missing asset: ${id} (no environment found)`
+                    );
+                  }
+                }
+
+                throw Error(
+                  `Missing assets for environments: ${Array.from(envs).join(", ")}. Did you forget to build an environment?`
+                );
+              }
             },
           },
         });
@@ -206,7 +241,7 @@ export function importEnv(): vite.PluginOption[] {
             if (this.environment.mode === "build") {
               environmentEntries[env] ??= new Map<string, string>();
 
-              const id = `__IMPORT_ENV__${createHash("sha256").update(resolved).digest("hex")}`;
+              const id = `__IMPORT_ENV__${env}_${createHash("sha256").update(resolved).digest("hex").slice(0, 8)}`;
 
               environmentEntries[env].set(id, resolved);
 
@@ -227,7 +262,7 @@ export function importEnv(): vite.PluginOption[] {
       },
       transform(code, id) {
         if (!isValidScriptFile(id)) {
-          console.info(`[import-env] Skipping transformation of: ${id}`);
+          // console.info(`[import-env] Skipping transformation of: ${id}`);
           return;
         }
 
@@ -266,6 +301,11 @@ export function importEnv(): vite.PluginOption[] {
           const id = match[0].slice(1, -1);
 
           const replacement = entryAssets[id];
+          if (replacement) {
+            missingAssets.delete(id);
+          } else {
+            missingAssets.add(id);
+          }
           code =
             code.slice(0, match.index + 1) +
             replacement +
@@ -276,7 +316,6 @@ export function importEnv(): vite.PluginOption[] {
       },
       writeBundle(_, bundle) {
         updateEntries();
-        // if (!isWrite) {
         if (this.environment.config.build.manifest) {
           const asset =
             bundle[
@@ -286,7 +325,6 @@ export function importEnv(): vite.PluginOption[] {
             ];
           if (asset?.type === "asset" && typeof asset.source === "string") {
             const manifest = JSON.parse(asset.source) as vite.Manifest;
-            console.log({ env: this.environment.name, manifest });
             for (const chunk of Object.values(manifest)) {
               if (chunk.isEntry && chunk.name?.startsWith("__IMPORT_ENV__")) {
                 entryAssets[chunk.name] =
@@ -295,7 +333,6 @@ export function importEnv(): vite.PluginOption[] {
             }
           }
         }
-        // }
       },
     },
     {

@@ -12,7 +12,13 @@ export default defineConfig({
   environments: {
     client: {
       optimizeDeps: {
-        include: ["client-only"],
+        include: [
+          "client-only",
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-dom",
+        ],
       },
     },
     server: {
@@ -21,7 +27,13 @@ export default defineConfig({
         conditions: ["react-server"],
       },
       optimizeDeps: {
-        include: ["server-only"],
+        include: [
+          "server-only",
+          "react",
+          "react/jsx-runtime",
+          "react/jsx-dev-runtime",
+          "react-dom",
+        ],
       },
     },
   },

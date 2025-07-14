@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "start": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "client-only": "0.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-server-dom-webpack": "^19.1.0",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitest/browser": "^3.2.4",
+    "playwright": "^1.54.1",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vite-import-env": "workspace:*",
+    "vitest": "^3.2.4"
+  }
+}

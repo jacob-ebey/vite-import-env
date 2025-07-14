@@ -16,8 +16,12 @@ export default defineConfig({
       },
     },
     server: {
+      consumer: "client",
       resolve: {
         conditions: ["react-server"],
+      },
+      optimizeDeps: {
+        include: ["server-only"],
       },
     },
   },

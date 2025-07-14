@@ -1,9 +1,8 @@
 import * as esrap from "esrap";
 import ts from "esrap/languages/ts";
+import tsx from "esrap/languages/tsx";
 import * as oxc from "oxc-parser";
 import * as vite from "vite";
-
-export default importEnv;
 
 function isValidScriptFile(id: string): boolean {
   const [idWithoutQuery] = id.split("?");
@@ -13,6 +12,11 @@ function isValidScriptFile(id: string): boolean {
     idWithoutQuery.endsWith(".js") ||
     idWithoutQuery.endsWith(".jsx")
   );
+}
+
+function isJSXFile(id: string): boolean {
+  const [idWithoutQuery] = id.split("?");
+  return idWithoutQuery.endsWith(".jsx") || idWithoutQuery.endsWith(".tsx");
 }
 
 export function importEnv(): vite.PluginOption[] {
@@ -89,7 +93,10 @@ export function importEnv(): vite.PluginOption[] {
           }
         }
 
-        const generated = esrap.print(ast.program, ts());
+        const generated = esrap.print(
+          ast.program,
+          isJSXFile(id) ? tsx() : ts()
+        );
         return generated;
       },
     },
@@ -144,9 +151,43 @@ export function importEnv(): vite.PluginOption[] {
             }
           }
 
-          return esrap.print(ast.program, ts());
+          return esrap.print(ast.program, isJSXFile(id) ? tsx() : ts());
         }
+      },
+    },
+    {
+      name: "import-env-server",
+      enforce: "pre",
+      configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          const url = new URL(req.url || "/", `http://${req.headers.host}`);
+          const env = url.searchParams.get("env");
+          const environment = env ? server.environments[env] : null;
+          if (environment) {
+            const cleanURL = new URL(url);
+            cleanURL.searchParams.delete("env");
+            let mod = await environment.transformRequest(
+              url.pathname + url.search
+            );
+            if (!mod || !mod.code) {
+              mod = await environment.transformRequest(
+                cleanURL.pathname + cleanURL.search
+              );
+            }
+            if (mod) {
+              res.setHeader("Cache-Control", "no-cache");
+              if (mod.etag) res.setHeader("Etag", mod.etag);
+              res.setHeader("Content-Type", "application/javascript");
+              res.end(mod.code);
+              return;
+            }
+          }
+
+          next();
+        });
       },
     },
   ];
 }
+
+export default importEnv;

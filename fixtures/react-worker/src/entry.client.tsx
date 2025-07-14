@@ -3,17 +3,20 @@ import "client-only";
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
-import { fetchServer } from "./entry.server" with { env: "server" };
+import { fetchWorker } from "./fetch-transport/client";
+import Worker from "./entry.worker?worker";
 
 // @ts-expect-error - polyfill webpack global
 globalThis.__webpack_require__ = () => {};
+
+const worker = new Worker();
 
 function Root({ root }: { root: any }) {
   return <>{React.use(root)}</>;
 }
 
 export async function hydrateClient(target: Element) {
-  const fetchPromise = fetchServer(new Request(location.href));
+  const fetchPromise = fetchWorker(worker, new Request(location.href));
 
   const { createFromFetch } = await import(
     // @ts-expect-error - no types for this package

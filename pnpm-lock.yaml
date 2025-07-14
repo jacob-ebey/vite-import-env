@@ -111,6 +111,52 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.0.13)(@vitest/browser@3.2.4)(jiti@2.4.2)(terser@5.43.1)
 
+  fixtures/react-worker:
+    dependencies:
+      client-only:
+        specifier: 0.0.1
+        version: 0.0.1
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      react-server-dom-webpack:
+        specifier: ^19.1.0
+        version: 19.1.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(webpack@5.100.1)
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.13
+        version: 24.0.13
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.1.8
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.1.6(@types/react@19.1.8)
+      '@vitest/browser':
+        specifier: ^3.2.4
+        version: 3.2.4(playwright@1.54.1)(vite@7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1))(vitest@3.2.4)
+      playwright:
+        specifier: ^1.54.1
+        version: 1.54.1
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1)
+      vite-import-env:
+        specifier: workspace:*
+        version: link:../..
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.0.13)(@vitest/browser@3.2.4)(jiti@2.4.2)(terser@5.43.1)
+
   fixtures/worker:
     dependencies:
       client-only:

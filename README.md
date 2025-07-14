@@ -21,19 +21,33 @@ import { defineConfig } from "vite";
 import { importEnv } from "vite-import-env";
 
 export default defineConfig({
-  plugins: [importEnv()],
+  builder: {
+    async buildApp(builder) {
+      await builder.build(builder.environments.client);
+      await builder.build(builder.environments.server);
+    },
+    sharedConfigBuild: true,
+    sharedPlugins: true,
+  },
   environments: {
     client: {
       // Client environment configuration
     },
     server: {
       // Server environment configuration
+      build: {
+        rollupOptions: {
+          // Required for environments that are imported in other environments
+          preserveEntrySignatures: "exports-only",
+        },
+      },
       resolve: {
         conditions: ["react-server"],
       },
     },
     // Add more environments as needed
   },
+  plugins: [importEnv()],
 });
 ```
 

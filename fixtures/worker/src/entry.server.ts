@@ -1,10 +1,10 @@
 import "server-only";
 
 import { serverOnlyValue } from "./server-only";
-// import { sharedValue } from "./shared";
+import { sharedValue } from "./shared";
 
 export const server = {
   serverOnlyValue,
-  // sharedValue,
+  sharedValue,
   value: "server-value",
 };

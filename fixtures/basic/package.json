@@ -4,8 +4,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "start": "vite preview",
-    "test": "vitest"
+    "start": "vite preview"
   },
   "dependencies": {
     "client-only": "0.0.1",
@@ -13,11 +12,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.13",
-    "@vitest/browser": "^3.2.4",
-    "playwright": "^1.54.1",
     "typescript": "^5.8.3",
     "vite": "^7.0.4",
-    "vite-import-env": "workspace:*",
-    "vitest": "^3.2.4"
+    "vite-import-env": "workspace:*"
   }
 }

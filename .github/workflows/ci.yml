@@ -42,10 +42,10 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v4
 
-    - name: Set node version to ${{ inputs.node-version }}
+    - name: Set node version to ${{ inputs.node_version }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ inputs.node-version }}
+        node-version: ${{ inputs.node_version }}
 
     - name: Install
       run: pnpm i

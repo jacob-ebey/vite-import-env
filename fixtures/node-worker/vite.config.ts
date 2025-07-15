@@ -1,7 +1,6 @@
-import { workerPlugin } from "@fetsorn/vite-node-worker";
 import { createRequestListener } from "@mjackson/node-fetch-server";
 import { defineConfig, RunnableDevEnvironment } from "vite";
-import { importEnv } from "vite-import-env";
+import { importEnv, nodeWorker } from "vite-import-env";
 
 export default defineConfig({
   builder: {
@@ -50,7 +49,7 @@ export default defineConfig({
   },
   plugins: [
     importEnv(),
-    workerPlugin(),
+    nodeWorker(),
     {
       name: "dev-server",
       configureServer(server) {

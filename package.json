@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "esrap": "https://pkg.pr.new/sveltejs/esrap@70",
+    "magic-string": "^0.30.17",
     "oxc-parser": "0.77.0"
   },
   "devDependencies": {

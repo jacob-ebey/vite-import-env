@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { setupTest } from "../test-helpers";
 
-test.skip("basic smoke test dev", async ({ page: _page }) => {
+test("basic smoke test dev", async ({ page: _page }) => {
   using page = await setupTest(_page, "dev", import.meta.dirname);
 
   const response = await page.goto("/");

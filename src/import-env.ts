@@ -7,6 +7,8 @@ import tsx from "esrap/languages/tsx";
 import * as oxc from "oxc-parser";
 import * as vite from "vite";
 
+export { nodeWorker } from "./node-worker-plugin";
+
 function alwaysSkip(id: string): boolean {
   return id.startsWith("\0vite");
 }

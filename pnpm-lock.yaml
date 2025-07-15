@@ -11,6 +11,9 @@ importers:
       esrap:
         specifier: https://pkg.pr.new/sveltejs/esrap@70
         version: https://pkg.pr.new/sveltejs/esrap@70
+      magic-string:
+        specifier: ^0.30.17
+        version: 0.30.17
       oxc-parser:
         specifier: 0.77.0
         version: 0.77.0

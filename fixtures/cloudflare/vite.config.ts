@@ -1,5 +1,5 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { defineConfig, RunnableDevEnvironment } from "vite";
+import { defineConfig } from "vite";
 import { importEnv } from "vite-import-env";
 
 export default defineConfig({

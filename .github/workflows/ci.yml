@@ -3,14 +3,13 @@ name: CI
 on:
   push:
     branches:
-    - main
+      - main
 
   pull_request:
     branches:
-    - main
+      - main
 
   workflow_dispatch:
-
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
@@ -21,48 +20,37 @@ env:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     timeout-minutes: 30
 
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-        node_version: [ 24 ]
-        # include:
-        # - os: macos-latest
-        #   node_version: 22
-        # - os: windows-latest
-        #   node_version: 22
-      fail-fast: false
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
-    - name: Set node version to ${{ inputs.node_version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ inputs.node_version }}
+      - name: Set node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
 
-    - name: Install
-      run: pnpm i
+      - name: Install
+        run: pnpm i
 
-    - name: Build
-      run: pnpm run build
+      - name: Build
+        run: pnpm run build
 
-    - name: Cache Playwright Dependencies
-      id: cache-playwright
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright
+      - name: Cache Playwright Dependencies
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright
 
-    - name: Install Playwright Dependencies
-      if: steps.cache-playwright.outputs.cache-hit != 'true'
-      run: pnpm exec playwright install chromium --with-deps
+      - name: Install Playwright Dependencies
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium --with-deps
 
-    - name: Test
-      run: pnpm run test
+      - name: Test
+        run: pnpm run test

@@ -1,9 +1,7 @@
 import "client-only";
 
-import { fetchWorker } from "./fetch-transport/client";
-
-// @ts-expect-error
 import Worker from "./entry.worker.ts?nodeWorker";
+import { fetchWorker } from "./fetch-transport/client";
 
 const worker = new Worker();
 

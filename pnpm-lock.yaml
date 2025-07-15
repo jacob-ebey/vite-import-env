@@ -96,6 +96,34 @@ importers:
         specifier: workspace:*
         version: link:../..
 
+  fixtures/node-worker:
+    dependencies:
+      '@mjackson/node-fetch-server':
+        specifier: 0.7.0
+        version: 0.7.0
+      client-only:
+        specifier: 0.0.1
+        version: 0.0.1
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
+    devDependencies:
+      '@fetsorn/vite-node-worker':
+        specifier: ^1.0.1
+        version: 1.0.1
+      '@types/node':
+        specifier: ^24.0.13
+        version: 24.0.13
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+      vite:
+        specifier: ^7.0.4
+        version: 7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1)
+      vite-import-env:
+        specifier: workspace:*
+        version: link:../..
+
   fixtures/react:
     dependencies:
       client-only:
@@ -379,6 +407,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fetsorn/vite-node-worker@1.0.1':
+    resolution: {integrity: sha512-uQCIrfW5tzTXzpfJTS0/+lpzNsYI6Y0w+6oaTBvvQ6gJ8/ttqmRy4P2Q9dzksmlzYOY6Bcq17kI61eHrJ3qbug==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -1114,6 +1145,9 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
+  magic-string@0.30.17:
+    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
@@ -1582,6 +1616,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.6':
     optional: true
+
+  '@fetsorn/vite-node-worker@1.0.1':
+    dependencies:
+      magic-string: 0.30.17
 
   '@hapi/hoek@9.3.0': {}
 
@@ -2217,6 +2255,10 @@ snapshots:
   loader-runner@4.3.0: {}
 
   lodash@4.17.21: {}
+
+  magic-string@0.30.17:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.4
 
   math-intrinsics@1.1.0: {}
 

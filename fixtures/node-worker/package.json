@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@mjackson/node-fetch-server": "0.7.0",
+    "client-only": "0.0.1",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@fetsorn/vite-node-worker": "^1.0.1",
+    "@types/node": "^24.0.13",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vite-import-env": "workspace:*"
+  }
+}

@@ -38,11 +38,18 @@ function mergeRollupInputs(
     Object.fromEntries(ensureEntries);
 
   if (typeof inputs === "string") {
-    normalizedInputs = { [path.basename(inputs)]: inputs };
+    normalizedInputs = {
+      [path.basename(inputs, path.extname(inputs))]: inputs,
+    };
   } else if (Array.isArray(inputs)) {
     normalizedInputs = Object.assign(
       normalizedInputs,
-      Object.fromEntries(inputs.map((input) => [path.basename(input), input]))
+      Object.fromEntries(
+        inputs.map((input) => [
+          path.basename(input, path.extname(input)),
+          input,
+        ])
+      )
     );
   } else {
     normalizedInputs = Object.assign(normalizedInputs, inputs);
@@ -58,7 +65,10 @@ export type ImportEnvAPI = {
 export function importEnv(): vite.PluginOption[] {
   let resolvedConfig: vite.ResolvedConfig | undefined;
   const environmentEntries: Record<string, Map<string, string>> = {};
-  const entryAssets: Record<string, string> = {};
+  const entryAssets: Record<
+    string,
+    { base: string; file: string; outDir: string }
+  > = {};
   const missingAssets: Set<string> = new Set();
 
   function getResolver(env: string) {
@@ -291,7 +301,7 @@ export function importEnv(): vite.PluginOption[] {
           return esrap.print(ast.program, isJSXFile(id) ? tsx() : ts());
         }
       },
-      renderChunk(code) {
+      renderChunk(code, chunk) {
         const matches = Array.from(
           code.matchAll(/['"]__IMPORT_ENV__[\w\d]+['"]/g)
         ).reverse();
@@ -306,9 +316,36 @@ export function importEnv(): vite.PluginOption[] {
           } else {
             missingAssets.add(id);
           }
+
+          const getRelativeServerImport = () => {
+            if (!replacement) return "environment asset not found";
+            const outPath = path.resolve(
+              this.environment.config.root,
+              replacement.outDir,
+              replacement.file
+            );
+            const chunkPath = path.resolve(
+              this.environment.config.root,
+              this.environment.config.build.outDir,
+              chunk.fileName
+            );
+            let relativePath = vite.normalizePath(
+              path.relative(path.dirname(chunkPath), outPath)
+            );
+            if (!relativePath.startsWith(".")) {
+              relativePath = "./" + relativePath;
+            }
+
+            return relativePath;
+          };
+
           code =
             code.slice(0, match.index + 1) +
-            replacement +
+            (this.environment.config.consumer === "server"
+              ? getRelativeServerImport()
+              : replacement
+                ? replacement.base + replacement.file
+                : "environment asset not found") +
             code.slice(match.index + match[0].length - 1);
         }
 
@@ -327,8 +364,11 @@ export function importEnv(): vite.PluginOption[] {
             const manifest = JSON.parse(asset.source) as vite.Manifest;
             for (const chunk of Object.values(manifest)) {
               if (chunk.isEntry && chunk.name?.startsWith("__IMPORT_ENV__")) {
-                entryAssets[chunk.name] =
-                  this.environment.config.base + chunk.file;
+                entryAssets[chunk.name] = {
+                  base: this.environment.config.base,
+                  file: chunk.file,
+                  outDir: this.environment.config.build.outDir,
+                };
               }
             }
           }

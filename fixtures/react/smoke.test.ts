@@ -7,6 +7,7 @@ test("basic smoke test dev", async ({ page: _page }) => {
 
   await page.goto("/");
 
+  await page.waitForSelector("[data-testid='server-title']");
   await expect(page.getByTestId("server-title")).toBeAttached();
 });
 
@@ -15,5 +16,6 @@ test("basic smoke test prod", async ({ page: _page }) => {
 
   await page.goto("/");
 
+  await page.waitForSelector("[data-testid='server-title']");
   await expect(page.getByTestId("server-title")).toBeAttached();
 });

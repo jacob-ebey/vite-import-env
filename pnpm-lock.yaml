@@ -142,9 +142,6 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
     devDependencies:
-      '@fetsorn/vite-node-worker':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@types/node':
         specifier: ^24.0.13
         version: 24.0.13
@@ -648,9 +645,6 @@ packages:
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
-
-  '@fetsorn/vite-node-worker@1.0.1':
-    resolution: {integrity: sha512-uQCIrfW5tzTXzpfJTS0/+lpzNsYI6Y0w+6oaTBvvQ6gJ8/ttqmRy4P2Q9dzksmlzYOY6Bcq17kI61eHrJ3qbug==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -2263,10 +2257,6 @@ snapshots:
     optional: true
 
   '@fastify/busboy@2.1.1': {}
-
-  '@fetsorn/vite-node-worker@1.0.1':
-    dependencies:
-      magic-string: 0.30.17
 
   '@hapi/hoek@9.3.0': {}
 

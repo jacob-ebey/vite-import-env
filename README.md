@@ -2,8 +2,6 @@
 
 A Vite plugin that enables cross-environment imports using import attributes syntax. This plugin allows you to import modules from different Vite environments (client, server, worker, etc.) within the same codebase using the `with { env: "..." }` syntax.
 
-An updated version of https://github.com/alex8088/electron-vite/blob/master/src/plugins/worker.ts with support for `dev`, not just `build`.
-
 ## Installation
 
 ```bash

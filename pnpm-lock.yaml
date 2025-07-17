@@ -154,6 +154,9 @@ importers:
       vite-import-env:
         specifier: workspace:*
         version: link:../..
+      vite-node-worker:
+        specifier: 0.0.1
+        version: 0.0.1(vite@7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1))
 
   fixtures/react:
     dependencies:
@@ -1908,6 +1911,11 @@ packages:
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+  vite-node-worker@0.0.1:
+    resolution: {integrity: sha512-TL4F0V0ViubSEBIPERp8GY3Xh1FkwRabi+YMtSysDrf9LWjtLIw2MnMQ4fkICShxfo7vvUXWjoo+qNTr9wP4Sg==}
+    peerDependencies:
+      vite: ^7.0.4
+
   vite@7.0.4:
     resolution: {integrity: sha512-SkaSguuS7nnmV7mfJ8l81JGBFV7Gvzp8IzgE8A8t23+AxuNX61Q5H1Tpz5efduSN7NHC8nQXD3sKQKZAu5mNEA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3434,6 +3442,11 @@ snapshots:
       browserslist: 4.25.1
       escalade: 3.2.0
       picocolors: 1.1.1
+
+  vite-node-worker@0.0.1(vite@7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1)):
+    dependencies:
+      magic-string: 0.30.17
+      vite: 7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1)
 
   vite@7.0.4(@types/node@24.0.13)(jiti@2.4.2)(terser@5.43.1):
     dependencies:

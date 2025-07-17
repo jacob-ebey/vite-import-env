@@ -15,6 +15,7 @@
     "@types/node": "^24.0.13",
     "typescript": "^5.8.3",
     "vite": "^7.0.4",
-    "vite-import-env": "workspace:*"
+    "vite-import-env": "workspace:*",
+    "vite-node-worker": "0.0.1"
   }
 }

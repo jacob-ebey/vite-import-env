@@ -1,6 +1,7 @@
 import { createRequestListener } from "@mjackson/node-fetch-server";
 import { defineConfig, RunnableDevEnvironment } from "vite";
-import { importEnv, nodeWorker } from "vite-import-env";
+import { importEnv } from "vite-import-env";
+import { nodeWorker } from "vite-node-worker";
 
 export default defineConfig({
   builder: {
